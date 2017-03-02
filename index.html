@@ -16,8 +16,8 @@ document.addEventListener("touchstart", function(){}, true);
 </head>
 <body>
 <table id="main">
-  <tr>
-    <td id="logo" scope="col">
+<tr>
+<td id="logo" scope="col">
 <a href="index.html">
 <span class="center"><img id="logo" src="Images/Logo.png" alt="Logo" title="FitIn" /></span>
 </a>
@@ -25,28 +25,28 @@ document.addEventListener("touchstart", function(){}, true);
 </tr>
 </table>
 <table class="content">
-  <tr>
-    <th id="options" colspan="3" scope="col">
+<tr>
+<th id="options" colspan="3" scope="col">
 <ul class="semiopaquemenu">
-  <li class="dropdown">
-    <a>Menu</a>
-    <div class="dropdown-content">
-      <a href="index.html">Current Space</a>
-      <a href="timeline.html">Predictions</a>
-      <a href="timeline.html">Advised Times</a>
-	  <a href="timeline.html">History</a>
-	  <a href="timetable.html">Timetable</a>
-    </div>
-  </li>
-  <li class="dropdown">
-    <a>Account Options</a>
-    <div class="dropdown-content">
-      <a href="login.html">Log In</a>
-      <a href="create_account.html">New Account</a>
-      <a href="edit_account.html">Edit Account</a>
-	  <a href="edit_timetable.html">Edit Timetable</a>
-    </div>
-  </li>
+<li class="dropdown">
+<a>Menu</a>
+<div class="dropdown-content">
+<a href="index.html">Current Space</a>
+<a href="timeline.html">Predictions</a>
+<a href="timeline.html">Advised Times</a>
+<a href="timeline.html">History</a>
+<a href="timetable.html">Timetable</a>
+</div>
+</li>
+<li class="dropdown">
+<a>Account Options</a>
+<div class="dropdown-content">
+<a href="login.html">Log In</a>
+<a href="create_account.html">New Account</a>
+<a href="edit_account.html">Edit Account</a>
+<a href="edit_timetable.html">Edit Timetable</a>
+</div>
+</li>
 </ul>
 <div class="bottombar"></div>
 <div>
@@ -54,49 +54,49 @@ document.addEventListener("touchstart", function(){}, true);
 <p id="title">Current Gym State</p>
 <hr class="colour" />
 </div>
-	</th>
-  </tr>
+</th>
+</tr>
 <tr>
-    <td class="table-edges" scope="col">&nbsp;</td>
-    <td id="table-internal" scope="col">
-    <p id="line1">People in the gym</p>
-    <input name="peopleInGym" id="numPeople" type="text" maxlength="3" readonly/>
-    <script>
-            $.ajax("https://docs.google.com/spreadsheets/d/1l-Xu3gIB79VKZ2VUSxT817G0zBltpkpOvuNcwsyW-1A/pub?gid=0&range=a2&output=csv").done(function(result){
-                $('#numPeople').val(result);
-            var txtBusyness;
-            if (result > 70) {
-    			document.getElementById("busyness").src = "Images/ExtremelyBusy.png";
-    			txtBusyness = "Extremely Busy";
-    		}
-    		else if (result > 50) { 
-    			document.getElementById("busyness").src = "Images/RelativelyBusy.png";
-    			txtBusyness = "Relatively Busy"; 
-    		}
-    		else if (result > 40) { 
-    			document.getElementById("busyness").src = "Images/Busy.png";
-    			txtBusyness = "Busy"; 
-    		}
-    		else if (result > 30) { 
-    			document.getElementById("busyness").src = "Images/NotSoBusy.png";
-    			txtBusyness = "Not so busy"; 
-    		}
-    		else { 
-    			document.getElementById("busyness").src = "Images/Free.png";
-    			txtBusyness = "Free";
-    		}
-    		document.getElementById("txtBusyness").innerHTML = txtBusyness;
-            });
-    </script>
-    <p>&nbsp;</p>
+<td class="table-edges" scope="col">&nbsp;</td>
+<td id="table-internal" scope="col">
+<p id="line1">People in the gym</p>
+<input name="peopleInGym" id="numPeople" type="text" maxlength="3" readonly/>
+<script>
+	$.ajax("https://docs.google.com/spreadsheets/d/1l-Xu3gIB79VKZ2VUSxT817G0zBltpkpOvuNcwsyW-1A/pub?gid=0&range=a2&output=csv").done(function(result){
+		$('#numPeople').val(result);
+	var txtBusyness;
+	if (result > 70) {
+		document.getElementById("busyness").src = "Images/ExtremelyBusy.png";
+		txtBusyness = "Extremely Busy";
+	}
+	else if (result > 50) { 
+		document.getElementById("busyness").src = "Images/RelativelyBusy.png";
+		txtBusyness = "Relatively Busy"; 
+	}
+	else if (result > 40) { 
+		document.getElementById("busyness").src = "Images/Busy.png";
+		txtBusyness = "Busy"; 
+	}
+	else if (result > 30) { 
+		document.getElementById("busyness").src = "Images/NotSoBusy.png";
+		txtBusyness = "Not so busy"; 
+	}
+	else { 
+		document.getElementById("busyness").src = "Images/Free.png";
+		txtBusyness = "Free";
+	}
+	document.getElementById("txtBusyness").innerHTML = txtBusyness;
+	});
+</script>
+<p>&nbsp;</p>
 <span class="center"><img id="busyness" alt="Gym State" title="Gym State" /></span>    
-	  <p id = "txtBusyness"></p>
-	  <p>&nbsp;</p>
-	  <p id="title">Gym Timeline</p>
+<p id = "txtBusyness"></p>
+<p>&nbsp;</p>
+<p id="title">Gym Timeline</p>
 <span class="center"><img src="Images/Timeline.png" alt="Timeline" title="Timeline" /></span> 
 </td>
-    <td class="table-edges" scope="col">&nbsp;</td>
-  </tr>
+<td class="table-edges" scope="col">&nbsp;</td>
+</tr>
 </table>
 </body>
 </html>
