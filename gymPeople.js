@@ -1,5 +1,8 @@
-$.ajax("https://docs.google.com/spreadsheets/d/1l-Xu3gIB79VKZ2VUSxT817G0zBltpkpOvuNcwsyW-1A/pub?gid=0&range=a2&output=csv").done(function (result) {
-	$('#numPeople').val(result);
+ function Data(root) {
+    var feed = root.feed;
+    var entries = feed.entry || [];
+	var result = entries[0].content.$t;
+	document.getElementById("numPeople").value = result;
 	var txtBusyness;
 	if (result > 70) {
 		document.getElementById("busyness").src = "Images/ExtremelyBusy.png";
@@ -22,4 +25,4 @@ $.ajax("https://docs.google.com/spreadsheets/d/1l-Xu3gIB79VKZ2VUSxT817G0zBltpkpO
 		txtBusyness = "Free";
 	}
 	document.getElementById("txtBusyness").innerHTML = txtBusyness;
-});
+ }
