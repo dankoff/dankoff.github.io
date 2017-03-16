@@ -3,11 +3,23 @@ var canvas;
 var img;
 var cs;
 
+var left = new Image();
+var zout = new Image();
+var adv = new Image();
+var zin = new Image();
+var right = new Image();
+left.src = "Images/left.png";
+zout.src = "Images/out.png";
+adv.src = "Images/advice.png";
+zin.src = "Images/in.png";
+right.src = "Images/right.png";
+
 var bounds = {};
 bounds.x = 50;
 bounds.y = 0;
 bounds.w = 700;
 bounds.h = 500;
+var buttonWidth = 50
 
 var mx = -1;
 var my = -1;
@@ -20,6 +32,8 @@ var max = 80;
 var start = 0;
 var width = 200;
 var s = generateSeries(1000);
+var but = -1;
+var advice = false;
 
 function generateSeries(length = 1000) {
 	var s = {};
@@ -45,11 +59,9 @@ function generateSeries(length = 1000) {
 	return s;
 }
 
-function getP(i){
-	var p = {};
-	p.x = s.data[i]/max*0.8*bounds.w;
-	p.y = parseInt((s.time[i]-start)*bounds.h/(width - 1));
-	return p;
+function getX(x){
+	return bounds.x + x/max*0.8*(bounds.w);
+	//p.y = parseInt((s.time[i]-start)*bounds.h/(width - 1));
 }
 
 function mmove(e){
@@ -57,12 +69,25 @@ function mmove(e){
 	my = e.y - canvas.getBoundingClientRect().top;
 	if (e.buttons == 0) {
 	}
-	if (drag) {		
-		var x = e.x - canvas.getBoundingClientRect().left - dx;
-		var y = e.y - canvas.getBoundingClientRect().top - dy;
-		dx = e.x - canvas.getBoundingClientRect().left;
-		dy = e.y - canvas.getBoundingClientRect().top;
-		start = start - y*(width - 1)/canvas.height;
+	if (drag) {
+		if (but == -1) {
+			var x = e.x - canvas.getBoundingClientRect().left - dx;
+			var y = e.y - canvas.getBoundingClientRect().top - dy;
+			dx = e.x - canvas.getBoundingClientRect().left;
+			dy = e.y - canvas.getBoundingClientRect().top;
+			start = start - y*(width - 1)/canvas.height;
+		} else {
+			var newbut;
+			if (mx > bounds.x + bounds.w){
+				newbut = parseInt(5 * my / canvas.height);
+			} else {
+				newbut = -1;
+			}
+			if (newbut != but){
+				but = -1;
+				drag = false
+			}
+		}
 	}
 	draw();
 }
@@ -73,17 +98,26 @@ function mdown(e){
 	dx = e.x - canvas.getBoundingClientRect().left;
 	dy = e.y - canvas.getBoundingClientRect().top;
 	
+	if (dx > bounds.x + bounds.w){
+		but = parseInt(5 * dy / canvas.height);
+		if (but == 2) advice = !advice;
+	} else {
+		but = -1;
+	}
+	
 	draw();
 }
 
 function mup(e){
 	drag = false;
+	but = -1;
 }
 
 function mout(e){
 	mx = -1;
 	my = -1;
 	drag = false;
+	but = -1;
 }
 
 function mwheel(e){
@@ -99,7 +133,7 @@ window.onresize = function(e){
 function draw(){
 	bounds.y = 0;
 	bounds.h = canvas.height;
-	bounds.w = canvas.width - bounds.x;
+	bounds.w = canvas.width - bounds.x - buttonWidth;
 	c.clearRect(0, 0, canvas.width, canvas.height);
 	c.fillStyle = "#fff";
 	c.fillRect(0, 0, canvas.width, canvas.height);
@@ -107,21 +141,100 @@ function draw(){
 	c.lineWidth = 3;
 	c.strokeStyle = "#000";
 	c.beginPath();
-	var i = 0;
+	/*var i = 0;
+	var lastX = 0;
 	while (i+1 < s.length && s.time[i+1] < start) i++;
 	while (i < s.length && s.time[i] < start + width){
-		var p1 = getP(i);
-		var p2 = getP(i+1);
-		c.moveTo(p1.x,p1.y);
-		c.lineTo(p2.x,p2.y);
-		
-		i++;
+		var dist = 0;
+		var j = i;
+		var count = 0;
+		var acc = 0;
+		while (dist < width / 20 && i + 1 < s.length){
+			dist += s.time[i + 1] - s.time[i];
+			count++;
+			acc += s.data[i + 1];
+			i++;
+		}
+		acc /= count;
+		var p1 = getP(j);
+		var p2 = getP(i);
+		c.moveTo(bounds.x + lastX,p1.y);
+		c.lineTo(bounds.x + acc,p2.y);
+		lastX = acc;
+	}*/
+	var res = 100;
+	var j = 0;
+	var lastX = -1;
+	while (j+1 < s.length && s.time[j+1] < start) j++;
+	for (var i = 0; i <= res; i++) {
+		var x = 0;
+		var count = 0;
+		while (j+1 < s.length && s.time[j] < start + (width * i) / res){
+			x += s.data[j];
+			count++;
+			j++;
+		}
+		if (j + 1 < s.length){
+			if ( count == 0){
+				if (lastX >= 0){
+					c.moveTo(lastX, (i - 1) * canvas.height / res);
+					c.lineTo(lastX, i * canvas.height / res);
+				}
+			} else {
+				x = getX(x / count);
+				if (lastX >= 0){
+					c.moveTo(lastX, (i - 1) * canvas.height / res);
+					c.lineTo(x, i * canvas.height / res);
+				}
+				lastX = x;
+			}
+		}
 	}
+	
+	c.stroke();
+	
+	c.drawImage(left, bounds.x + bounds.w, 0, buttonWidth, canvas.height / 5);
+	c.drawImage(zout, bounds.x + bounds.w, canvas.height / 5, buttonWidth, canvas.height / 5);
+	c.drawImage(adv, bounds.x + bounds.w, 2 * canvas.height / 5, buttonWidth, canvas.height / 5);
+	c.drawImage(zin, bounds.x + bounds.w, 3 * canvas.height / 5, buttonWidth, canvas.height / 5);
+	c.drawImage(right, bounds.x + bounds.w, 4 * canvas.height / 5, buttonWidth, canvas.height / 5);
+	
+	
+	c.beginPath();
+	c.moveTo(bounds.x + bounds.w, 0);
+	c.lineTo(bounds.x + bounds.w, canvas.height);
+	for (var i = 1; i < 5; i++){
+		c.moveTo(bounds.x + bounds.w, i * canvas.height / 5);
+		c.lineTo(canvas.width, i * canvas.height / 5);
+	}
+	c.stroke();
+	
+	c.beginPath();
+	
+	c.moveTo(bounds.x, 0);
+	c.lineTo(bounds.x, canvas.height);
+	
 	c.stroke();
 }
 
 function clock(){
-	draw();
+	var delta = width * 0.01;
+	if (but != -1){
+		if (but == 0){
+			start -= width * 0.01;
+		} else if (but == 1){
+			start = start - delta;
+			width = width + 2 * delta;
+		} else if (but == 2){
+			
+		} else if (but == 3){
+			start = start + delta;
+			width = width - 2 * delta;
+		} else {
+			start += width * 0.01;
+		}
+		draw();
+	}
 }
 
 function begin(){
@@ -158,7 +271,7 @@ function begin(){
 	
 	
 	draw();
-	//setInterval(clock, 18);
+	setInterval(clock, 18);
 }
 
 setTimeout(begin, 100);
