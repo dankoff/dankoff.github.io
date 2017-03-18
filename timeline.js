@@ -19,7 +19,7 @@ bounds.x = 50;
 bounds.y = 0;
 bounds.w = 700;
 bounds.h = 500;
-var buttonWidth = 50
+var buttonWidth = 50;
 
 var mx = -1;
 var my = -1;
@@ -31,9 +31,89 @@ var max = 80;
 
 var start = 0;
 var width = 200;
-var s = generateSeries(1000);
+var s = generateSeries(5);
 var but = -1;
 var advice = false;
+
+
+function getHistory(){
+	//DO POST
+	var data = JSON.stringify({ value: "gethistory" });
+	var request = new XMLHttpRequest();
+	request.open('POST', 'db_interface.php');
+	//request.responseType = "json";
+	request.setRequestHeader('Content-Type', 'application/json');
+	request.onreadystatechange = function() {
+		if (request.status >= 200 && request.status < 400) {
+			// Success!
+			if (request.readyState == 4) {
+				var resp = JSON.parse(request.response);
+				st = [];
+				sd = [];
+				for (var i = 0; i < resp.length; i++){
+					st[i] = (new Date(resp[i][0]))/60000;
+					sd[i] = parseInt(resp[i][1]);
+				}
+				s.time = st;
+				s.data = sd;
+				s.length = resp.length;
+				s.width = 200;
+				start = s.time[s.length - 1] - 110;
+				draw();
+			}
+		} else {
+			// We reached our target server, but it returned an error
+			s = generateSeries(1000);
+		}
+	};
+	request.send(data);
+	//NO JQUERY
+}
+
+function setHistory(s){
+	//DO POST
+	var t = [];
+	var p = [];
+	for (var i = 0; i < s.length; i++){
+		var d = new Date(1488000000000+(parseInt(s.time[i]*60000)));
+		var mo = d.getMonth() + 1;
+		mo=mo>9?mo:"0"+mo;
+		var da = d.getDate();
+		da=da>9?da:"0"+da;
+		var ho = d.getHours();
+		ho=ho>9?ho:"0"+ho;
+		var mi = d.getMinutes();
+		mi=mi>9?mi:"0"+mi;
+		var se = d.getSeconds();
+		se=se>9?se:"0"+se;
+		
+		t[i] = d.getFullYear()+"-"+mo+"-"+da+" "+ho+":"+mi+":"+se;
+		p[i] = s.data[i];
+	}
+	var data = JSON.stringify({ value: "sethistory", time: t, people: p });
+	var request = new XMLHttpRequest();
+	request.open('POST', 'db_interface.php');
+	//request.responseType = "json";
+	request.setRequestHeader('Content-Type', 'application/json');
+	request.onreadystatechange = function() {
+		if (request.status >= 200 && request.status < 400) {
+			// Success!
+			if (request.readyState == 4) {
+				var resp = request.response;
+				console.log(resp);
+			}
+		} else {
+			// We reached our target server, but it returned an error
+			console.log("FUCK");
+		}
+	};
+	request.send(data);
+	//NO JQUERY
+}
+
+
+
+
 
 function generateSeries(length = 1000) {
 	var s = {};
@@ -215,6 +295,25 @@ function draw(){
 	c.lineTo(bounds.x, canvas.height);
 	
 	c.stroke();
+	
+	c.fillStyle = "#000";
+	c.font = "14px Tahoma";
+	var date = (new Date((start)*60000)).toDateString().substr(4, 100);
+	var time = (new Date((start)*60000)).toTimeString().substr(0, 5);
+	c.save();
+	c.translate(bounds.x - 16, 0);
+	c.rotate(Math.PI / 2);
+	c.fillText(date, 0, 0);
+	c.fillText(time, (c.measureText(date).width - c.measureText(time).width)/2, 16);
+	c.restore();
+	date = (new Date((start+width)*60000)).toDateString().substr(4, 100);
+	time = (new Date((start+width)*60000)).toTimeString().substr(0, 5);
+	c.save();
+	c.translate(bounds.x - 16, canvas.height - c.measureText(date).width);
+	c.rotate(Math.PI / 2);
+	c.fillText(date, 0, 0);
+	c.fillText(time, (c.measureText(date).width - c.measureText(time).width)/2, 16);
+	c.restore();
 }
 
 function clock(){
@@ -274,4 +373,5 @@ function begin(){
 	setInterval(clock, 18);
 }
 
+getHistory();
 setTimeout(begin, 100);
