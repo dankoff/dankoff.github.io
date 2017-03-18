@@ -31,7 +31,7 @@ var max = 80;
 
 var start = 0;
 var width = 200;
-var s = generateSeries(5);
+var s = generateSeries(20);
 var but = -1;
 var advice = false;
 
@@ -69,13 +69,12 @@ function getHistory(){
 	request.send(data);
 	//NO JQUERY
 }
-
 function setHistory(s){
 	//DO POST
 	var t = [];
 	var p = [];
-	for (var i = 0; i < s.length; i++){
-		var d = new Date(1488000000000+(parseInt(s.time[i]*60000)));
+	for (var i = 0; i < s.length && i < 100; i++){
+		var d = new Date(1488153600000+(parseInt(s.time[i]*60000)));
 		var mo = d.getMonth() + 1;
 		mo=mo>9?mo:"0"+mo;
 		var da = d.getDate();
@@ -101,6 +100,55 @@ function setHistory(s){
 			if (request.readyState == 4) {
 				var resp = request.response;
 				console.log(resp);
+				if (resp.substr(0, 7) == "Success" && s.length >= 100){
+					addHistory(s, 100);
+				}
+			}
+		} else {
+			// We reached our target server, but it returned an error
+			console.log("FUCK");
+		}
+	};
+	request.send(data);
+	//NO JQUERY
+}
+
+function addHistory(s, n){
+	//DO POST
+	var t = [];
+	var p = [];
+	var j = 0;
+	for (var i = n; i < s.length && i < n + 100; i++){
+		var d = new Date(1488153600000+(parseInt(s.time[i]*60000)));
+		var mo = d.getMonth() + 1;
+		mo=mo>9?mo:"0"+mo;
+		var da = d.getDate();
+		da=da>9?da:"0"+da;
+		var ho = d.getHours();
+		ho=ho>9?ho:"0"+ho;
+		var mi = d.getMinutes();
+		mi=mi>9?mi:"0"+mi;
+		var se = d.getSeconds();
+		se=se>9?se:"0"+se;
+		
+		t[j] = d.getFullYear()+"-"+mo+"-"+da+" "+ho+":"+mi+":"+se;
+		p[j] = s.data[i];
+		j++;
+	}
+	var data = JSON.stringify({ value: "addhistory", time: t, people: p });
+	var request = new XMLHttpRequest();
+	request.open('POST', 'db_interface.php');
+	//request.responseType = "json";
+	request.setRequestHeader('Content-Type', 'application/json');
+	request.onreadystatechange = function() {
+		if (request.status >= 200 && request.status < 400) {
+			// Success!
+			if (request.readyState == 4) {
+				var resp = request.response;
+				console.log(resp);
+				if (resp.substr(0, 7) == "Success" && s.length >= n + 100){
+					addHistory(s, n + 100);
+				}
 			}
 		} else {
 			// We reached our target server, but it returned an error
@@ -124,9 +172,20 @@ function generateSeries(length = 1000) {
 	for (var i = 0; i < length; i++){
 		var t = pt + 5*(Math.random() + Math.random());
 		var d = pd
-		if (d < max) d += parseInt(10*(Math.random() - Math.random()));
-		else d += parseInt(10*(Math.random() - 2 * Math.random()));
+		var a = 0;
+		if (t % 1440 < 7*60) a = 0;
+		else if (t % 1440 < 9*60) a = 20;
+		else if (t % 1440 < 12*60) a = 30;
+		else if (t % 1440 < 14.5*60) a = 100;
+		else if (t % 1440 < 19*60) a = 60;
+		else if (t % 1440 < 21*60) a = 30;
+		else if (t % 1440 < 22*60) a = 1;
+		else a = 0;
+		if ((t % (1440 * 7)) / 1440 > 5) a /= 3;
+		if (d > a) d += parseInt(10*(Math.random() - Math.random() - Math.random()));
+		else d += parseInt(10*(Math.random() + Math.random() - Math.random()));
 		d=d<0?0:d;
+		d=a==0?0:d;
 		st[i] = t;
 		sd[i] = d;
 		pt = t;

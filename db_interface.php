@@ -7,17 +7,39 @@
 		$people = $input->people;
 		$link = connect();
 		$result = mysqli_query($link, "DELETE FROM `History`");
+		$query = "";
+		$r = true;
 		for ($i = 0; $i < sizeof($time); $i++){
 			$query = "INSERT INTO `History` (`Time`, `People`)
 			VALUES (".'"'.$time[$i].'"'.", ".$people[$i].");";
 			$result = mysqli_query($link, $query);
-			if ($result){
-				fwrite($output, "Success
-				");
-			}else {
-				fwrite($output, "Failure
-				");
-			}
+			$r = $r && $result;
+		}
+		if ($r){
+			fwrite($output, "Success
+			");
+		}else {
+			fwrite($output, "Failure
+			");
+		}
+	} else if ($request == "addhistory"){
+		$time = $input->time;
+		$people = $input->people;
+		$link = connect();
+		$query = "";
+		$r = true;
+		for ($i = 0; $i < sizeof($time); $i++){
+			$query = "INSERT INTO `History` (`Time`, `People`)
+			VALUES (".'"'.$time[$i].'"'.", ".$people[$i].");";
+			$result = mysqli_query($link, $query);
+			$r = $r && $result;
+		}
+		if ($r){
+			fwrite($output, "Success
+			");
+		}else {
+			fwrite($output, "Failure
+			");
 		}
 	} else if ($request == "gethistory"){
 		$link = connect();
